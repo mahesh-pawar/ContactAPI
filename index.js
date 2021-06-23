@@ -2,11 +2,11 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser')
-const contact_routes = require('./routes/contacts');
+const contactRoutes = require('./routes/contacts');
 require('dotenv/config');
 
 app.use(bodyParser.json())
-app.use('/contacts', contact_routes);
+app.use('/contacts', contactRoutes);
 
 app.get('*', (req, res) => {
     res.json({ success: false, message: 'Resource not found!' })

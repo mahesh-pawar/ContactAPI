@@ -1,6 +1,8 @@
 const express = require('express');
+const { Mongoose } = require('mongoose');
 const router = express.Router();
 const Contacts = require('../models/Contacts');
+const { contactValidation } = require('../validation');
 
 // List Contacts
 router.get('/', async (req, res) => {
@@ -24,14 +26,27 @@ router.get('/:contact_id', async (req, res) => {
 
 // Create a new Contact
 router.post('/', async (req, res) => {
+
+    const { error } = contactValidation(req.body);
+    if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message });
+    }
+
+    // Check contact email already exist.
+    const emailExist = await Contacts.findOne({ email: req.body.email })
+    if (emailExist) {
+        return res.status(400).json({ success: false, message: 'Email already exist.' });
+    }
+
     const contact = Contacts({
         name: req.body.name,
         email: req.body.email
     });
 
     try {
-        const new_contact = await contact.save();
-        res.status(201).json({ success: true, data: new_contact });
+        const newContact = await contact.save();
+        const { _id, name, email } = newContact
+        res.status(201).json({ success: true, data: { _id, name, email } });
     } catch (error) {
         res.json({ success: false, message: error });
     }
@@ -40,8 +55,14 @@ router.post('/', async (req, res) => {
 
 // Update a Contact
 router.put('/:contact_id', async (req, res) => {
+
+    const { error } = contactValidation(req.body);
+    if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message });
+    }
+
     try {
-        const update_contact = await Contacts.updateOne(
+        const updateContact = await Contacts.updateOne(
             { _id: req.params.contact_id },
             {
                 $set: {
@@ -50,7 +71,7 @@ router.put('/:contact_id', async (req, res) => {
                 }
             }
         );
-        res.json({ success: true, data: update_contact });
+        res.json({ success: true, data: updateContact });
     } catch (error) {
         res.json({ success: false, message: error })
     }
@@ -59,8 +80,8 @@ router.put('/:contact_id', async (req, res) => {
 // Delete a Contact
 router.delete('/:contact_id', async (req, res) => {
     try {
-        const deleted_contact = await Contacts.deleteOne({ _id: { $eq: req.params.contact_id } })
-        res.json({ success: true, data: deleted_contact })
+        const deletedContact = await Contacts.deleteOne({ _id: { $eq: req.params.contact_id } })
+        res.json({ success: true, data: deletedContact })
     } catch (error) {
         res.json({ success: false, message: error })
     }
