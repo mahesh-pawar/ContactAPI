@@ -17,8 +17,8 @@ router.get('/', async (req, res) => {
 // Get Contact by ID
 router.get('/:contact_id', async (req, res) => {
     try {
-        const single_contact = await Contacts.findById(req.params.contact_id);
-        res.json({ success: true, data: single_contact })
+        const singleContact = await Contacts.findById(req.params.contact_id);
+        res.json({ success: true, data: singleContact })
     } catch (error) {
         res.json({ success: false, message: error })
     }
@@ -45,8 +45,7 @@ router.post('/', async (req, res) => {
 
     try {
         const newContact = await contact.save();
-        const { _id, name, email } = newContact
-        res.status(201).json({ success: true, data: { _id, name, email } });
+        res.status(201).json({ success: true, data: newContact });
     } catch (error) {
         res.json({ success: false, message: error });
     }
@@ -62,7 +61,7 @@ router.put('/:contact_id', async (req, res) => {
     }
 
     try {
-        const updateContact = await Contacts.updateOne(
+        await Contacts.updateOne(
             { _id: req.params.contact_id },
             {
                 $set: {
@@ -71,7 +70,9 @@ router.put('/:contact_id', async (req, res) => {
                 }
             }
         );
-        res.json({ success: true, data: updateContact });
+
+        const singleContact = await Contacts.findById(req.params.contact_id);
+        res.json({ success: true, data: singleContact })
     } catch (error) {
         res.json({ success: false, message: error })
     }
@@ -79,9 +80,16 @@ router.put('/:contact_id', async (req, res) => {
 
 // Delete a Contact
 router.delete('/:contact_id', async (req, res) => {
+
+    // Check whehter contact id is exist or not.
+    const contactExist = await Contacts.findOne({ _id: req.params.contact_id })
+    if (!contactExist) {
+        return res.status(400).json({ success: false, message: 'Bad request.' });
+    }
+
     try {
         const deletedContact = await Contacts.deleteOne({ _id: { $eq: req.params.contact_id } })
-        res.json({ success: true, data: deletedContact })
+        res.json({ success: true, data: 'Contact is deleted' })
     } catch (error) {
         res.json({ success: false, message: error })
     }
