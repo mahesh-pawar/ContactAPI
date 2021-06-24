@@ -4,8 +4,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser')
 const contactRoutes = require('./routes/contacts');
 require('dotenv/config');
+const basicAuthentication = require('./authentication');
 
 app.use(bodyParser.json())
+app.use(basicAuthentication)
 app.use('/contacts', contactRoutes);
 
 app.get('*', (req, res) => {
