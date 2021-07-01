@@ -19,5 +19,16 @@ const userValidation = (data) => {
     return userSchema.validate(data);
 }
 
+
+const authValidation = (data) => {
+    const userSchema = Joi.object({
+        email: Joi.string().required().email(),
+        password: Joi.string().min(8).required()
+    });
+
+    return userSchema.validate(data);
+}
+
 module.exports.contactValidation = contactValidation;
 module.exports.userValidation = userValidation;
+module.exports.authValidation = authValidation;

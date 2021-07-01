@@ -9,7 +9,7 @@ const basicAuthentication = require('./authentication');
 
 app.use(bodyParser.json())
 app.use('/users', userRoutes);
-app.use(basicAuthentication)
+app.use(basicAuthentication);
 app.use('/contacts', contactRoutes);
 
 app.get('*', (req, res) => {
